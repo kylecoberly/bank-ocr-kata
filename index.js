@@ -44,7 +44,7 @@ function validateAccountNumber(accountNumber){
   return checksum % 11 === 0
 }
 
-function getAccountValidationReport(accountNumbers){
+function getAccountValidationReport(scannedAccountNumbers){
   const getAccountMessage = accountNumber => {
     if (validateAccountNumber(accountNumber)){
       return accountNumber
@@ -55,16 +55,14 @@ function getAccountValidationReport(accountNumbers){
     }
   }
 
-  return accountNumbers
+  return scannedAccountNumbers
+    .map(scanNumbers)
     .map(getAccountMessage)
     .join("\n")
 }
 
 function generateAccountValidationReport(accountNumbers){
-  const report = flow([
-    map(scanNumbers),
-    getAccountValidationReport,
-  ])([accountNumbers])
+  const report = getAccountValidationReport(accountNumbers)
     
   return writeFile("report.txt", report)
     .then(() => {

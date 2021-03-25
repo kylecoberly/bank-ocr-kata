@@ -114,11 +114,23 @@ describe("validateAccountNumber", () => {
 })
 
 describe("getAccountValidationReport", () => {
-  it("return a report for mixed valid, invalid, and illegible accounts", () => {
-    const accountNumber1 = "345882865"
-    const accountNumber2 = "111111111"
-    const accountNumber3 = "?11111111"
-    const accountNumber4 = "457508000"
+  it("returns a report for mixed valid, invalid, and illegible accounts", () => {
+    let accountNumber1 =      " _     _  _  _  _  _  _  _ \n"
+    accountNumber1    +=      " _||_||_ |_||_| _||_||_ |_ \n"
+    accountNumber1    +=      " _|  | _||_||_||_ |_||_| _|\n"
+
+    let accountNumber2 =      "                           \n"
+    accountNumber2    +=      "  |  |  |  |  |  |  |  |  |\n"
+    accountNumber2    +=      "  |  |  |  |  |  |  |  |  |\n"
+
+    let accountNumber3 =      "                           \n"
+    accountNumber3    +=      "     |  |  |  |  |  |  |  |\n"
+    accountNumber3    +=      "     |  |  |  |  |  |  |  |\n"
+
+    let accountNumber4 =      "    _  _  _  _  _  _  _  _ \n"
+    accountNumber4    +=      "|_||_   ||_ | ||_|| || || |\n"
+    accountNumber4    +=      "  | _|  | _||_||_||_||_||_|\n"
+
     const accountNumbers = [accountNumber1, accountNumber2, accountNumber3, accountNumber4]
 
     let   output =  "345882865\n"
@@ -136,7 +148,7 @@ describe("generateAccountValidationReport", () => {
     input +=      "  | _| _||_||_ |_   ||_||_|\n"
     input +=      "  ||_  _|  | _||_|  ||_| _|\n"
 
-    await generateAccountValidationReport(input)
+    await generateAccountValidationReport([input])
 
     expect(writeFile).toHaveBeenCalledTimes(1)
     done()
