@@ -1,4 +1,6 @@
-const numbers = require("./numbers")
+const { getNumber } = require("./numbers")
+const { flow, map } = require("lodash/fp")
+const { writeFile } = require("fs").promises
 
 function scanNumbers(accountNumber){
   return splitAccountNumber(accountNumber)
@@ -7,7 +9,7 @@ function scanNumbers(accountNumber){
 }
 
 function scanNumber(number){
-  return numbers[number]
+  return getNumber(number)
 }
 
 function splitAccountNumber(accountNumber){
@@ -27,8 +29,56 @@ function splitAccountNumber(accountNumber){
   return splitNumbers
 }
 
+function validateAccountNumber(accountNumber){
+  const buildChecksum = (currentChecksum, number, index) => {
+    return currentChecksum + (number * (index + 1))
+  }
+  const toNumber = number => +number
+
+  const checksum = accountNumber
+    .split("")
+    .reverse()
+    .map(toNumber)
+    .reduce(buildChecksum, 0)
+
+  return checksum % 11 === 0
+}
+
+function getAccountValidationReport(accountNumbers){
+  const getAccountMessage = accountNumber => {
+    if (validateAccountNumber(accountNumber)){
+      return accountNumber
+    } else if (accountNumber.includes("?")){
+      return `${accountNumber} ILL`
+    } else {
+      return `${accountNumber} ERR`
+    }
+  }
+
+  return accountNumbers
+    .map(getAccountMessage)
+    .join("\n")
+}
+
+function generateAccountValidationReport(accountNumbers){
+  const report = flow([
+    map(scanNumbers),
+    getAccountValidationReport,
+  ])([accountNumbers])
+    
+  return writeFile("report.txt", report)
+    .then(() => {
+      console.log("Wrote report.txt")
+    }).catch(error => {
+      console.error(`There was an error writing this report: ${error.message}`)
+    })
+}
+
 module.exports = {
   scanNumber,
   splitAccountNumber,
   scanNumbers,
+  validateAccountNumber,
+  getAccountValidationReport,
+  generateAccountValidationReport,
 }

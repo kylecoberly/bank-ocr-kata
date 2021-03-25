@@ -50,4 +50,13 @@ numbers[seven] = "7"
 numbers[eight] = "8"
 numbers[nine] = "9"
 
-module.exports = numbers
+function getNumber(numberScan){
+  return numbers[numberScan]
+    ? numbers[numberScan]
+    : "?"
+}
+
+module.exports = {
+  numbers,
+  getNumber,
+}
