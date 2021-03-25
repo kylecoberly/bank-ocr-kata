@@ -1,5 +1,5 @@
 const { getNumber } = require("./numbers")
-const { flow, map } = require("lodash/fp")
+const { flow, map, chunk } = require("lodash/fp")
 const { writeFile } = require("fs").promises
 
 function scanNumbers(accountNumber){
@@ -72,6 +72,43 @@ function generateAccountValidationReport(accountNumbers){
     })
 }
 
+function reconcileAmbiguousNumber(numberScan){
+  const rebuildNumber = numberScanArray => {
+    let result = ""
+
+    for (let lineNumber = 0; lineNumber < 3; lineNumber++){
+      result += numberScanArray[lineNumber].join("")
+    }
+
+    console.log(result)
+
+    return getNumber(result)
+  }
+
+  const possibilities = []
+  const lines = chunk(3)(numberScan.split(""))
+
+  for (let lineNumber = 0; lineNumber < 3; lineNumber++){
+    for (let position = 0; position < 3; position++){
+      const originalValue = lines[lineNumber][position]
+
+      lines[lineNumber][position] = "-"
+      if (rebuildNumber(lines) != "?"){
+        possibilities.push(rebuildNumber(lines))
+      }
+
+      lines[lineNumber][position] = "|"
+      if (rebuildNumber(lines) != "?"){
+        possibilities.push(rebuildNumber(lines))
+      }
+
+      lines[lineNumber][position] = originalValue
+    }
+  }
+
+  return possibilities
+}
+
 module.exports = {
   scanNumber,
   splitAccountNumber,
@@ -79,4 +116,5 @@ module.exports = {
   validateAccountNumber,
   getAccountValidationReport,
   generateAccountValidationReport,
+  reconcileAmbiguousNumber,
 }

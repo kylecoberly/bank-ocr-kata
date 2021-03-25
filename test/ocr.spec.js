@@ -9,7 +9,7 @@ jest.mock("fs", () => ({
 const {
   scanNumber, splitAccountNumber, scanNumbers,
   validateAccountNumber, getAccountValidationReport,
-  generateAccountValidationReport,
+  generateAccountValidationReport, reconcileAmbiguousNumber,
 } = require("../index")
 
 const { invert } = require("lodash/fp")
@@ -140,6 +140,15 @@ describe("getAccountValidationReport", () => {
     
     expect(getAccountValidationReport(accountNumbers)).toBe(output)
   })
+
+  it.skip("returns a report for an illegible account that can be fixed", () => {
+    let accountNumber =      "       _  _  _  _  _  _  _ \n"
+    accountNumber    +=      " _||_||_ |_||_| _||_||_ |_ \n"
+    accountNumber    +=      " _|  | _||_||_||_ |_||_| _|\n"
+    let output = "345882865"
+
+    expect(getAccountValidationReport([accountNumber])).toBe(output)
+  })
 })
 
 describe("generateAccountValidationReport", () => {
@@ -152,5 +161,15 @@ describe("generateAccountValidationReport", () => {
 
     expect(writeFile).toHaveBeenCalledTimes(1)
     done()
+  })
+})
+
+describe("reconcileAmbiguousNumber", () => {
+  it("reconciles a miscanned 3", () => {
+    let input =      "   "
+    input    +=      " _|"
+    input    +=      " _|"
+
+    expect(reconcileAmbiguousNumber(input)).toEqual(["3"])
   })
 })
